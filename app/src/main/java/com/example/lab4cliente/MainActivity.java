@@ -3,11 +3,14 @@ package com.example.lab4cliente;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lab4cliente.model.Confirmacion;
 import com.example.lab4cliente.model.Usuarios;
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private EditText name;
     private EditText password;
+
     private Button login;
     private InputStream is;
     private OutputStream os;
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         name = findViewById(R.id.name);
         password = findViewById(R.id.password);
         login = findViewById(R.id.buttonlogin);
+
         login.setOnClickListener(this);
 
         initCliente();
@@ -81,10 +86,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Confirmacion conf = gson.fromJson(line,Confirmacion.class);
                             boolean respuesta = conf.getRespuesta();
 
+                            Log.e("recibido",respuesta + "");
+
                             if(respuesta == true){
 
                                 Intent intent = new Intent(this,WelcomeActivity.class);
                                 startActivity(intent);
+
+                            } if(respuesta == false){
+
+                                runOnUiThread(
+
+                                        ()->{
+                                            Toast.makeText(this,"No es corresto el usuario o la contraseña",Toast.LENGTH_LONG).show();
+
+                                        }
+                                );
+
                             }
 
                         }
@@ -145,5 +163,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String json = gson.toJson(user);
         Log.e(">>>>>",""+json);
         enviar(json);
+
+        SharedPreferences preferences = getSharedPreferences("datos",MODE_PRIVATE);
+        preferences.edit().putString("user",username).apply();
     }
 }
